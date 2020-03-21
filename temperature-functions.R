@@ -77,3 +77,20 @@ drop_pre_measurements <- function(data, ..., reset = TRUE) {
 
   data
 }
+
+#' Title
+#'
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' temperature_input_table <- read_temperature_file("examples/temperature.txt")
+#'
+#' temperature_input_table %>% drop_failed_measurements()
+drop_failed_measurements <- function(data) {
+    data %>%
+        mutate(dT = c(diff(temperature), NA)) %>%
+        subset(dT != 0)
+}
