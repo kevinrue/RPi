@@ -17,20 +17,16 @@ temperature_work_table <- temperature_work_table %>%
     subset(!is.na(dT_dt)) %>%
     reset_time()
 
-# ggplot(temperature_work_table) +
-#     geom_point(aes(time, temperature)) +
-#     geom_segment(
-#         aes(x = time, y = temperature, xend = time + 1, yend = temperature + dT_dt),
-#         arrow = arrow(length = unit(0.03, "npc"))
-#         )
+ggplot(temperature_work_table) +
+    geom_point(aes(time, temperature)) +
+    geom_segment(
+        aes(x = time, y = temperature, xend = time + 1, yend = temperature + dT_dt),
+        arrow = arrow(length = unit(0.03, "npc"))
+        )
 
-# ggplot(temperature_work_table) +
-#     geom_point(aes(time, dT_dt)) +
-#     coord_cartesian(ylim = c(0, max(temperature_work_table$dT_dt, na.rm = TRUE)))
-
-# ggplot(temperature_work_table) +
-#     geom_point(aes(time, dT_dt)) +
-#     coord_cartesian(ylim = c(0, max(temperature_work_table$dT_dt, na.rm = TRUE)))
+ggplot(temperature_work_table) +
+    geom_point(aes(time, dT_dt)) +
+    coord_cartesian(ylim = c(0, max(temperature_work_table$dT_dt, na.rm = TRUE)))
 
 fit <- lm(log(dT_dt) ~ time, temperature_work_table)
 # abs(MASS::stdres(fit)) < 1
@@ -42,10 +38,10 @@ fit <- lm(log(dT_dt) ~ time, temperature_work_table)
 temperature_work_table <- temperature_work_table %>%
     mutate(predict = exp(predict(fit, list(time=time))))
 
-# ggplot(temperature_work_table) +
-#     geom_point(aes(time, dT_dt)) +
-#     geom_line(aes(time, predict), temperature_work_table) +
-#     coord_cartesian(ylim = c(0, max(temperature_work_table$dT_dt, na.rm = TRUE)))
+ggplot(temperature_work_table) +
+    geom_point(aes(time, dT_dt)) +
+    geom_line(aes(time, predict), temperature_work_table) +
+    coord_cartesian(ylim = c(0, max(temperature_work_table$dT_dt, na.rm = TRUE)))
 
 T_0 <- temperature_work_table %>% pull(temperature) %>% head(1)
 
@@ -58,16 +54,16 @@ pred_table <- pred_table %>% mutate(
 
 T_final <- pred_table %>% pull(temperature) %>% tail(1)
 
-# ggplot(subset(pred_table, dT_dt > 0.0001 & time < 20*60)) +
-#     geom_line(aes(time, dT_dt)) +
-#     coord_cartesian(ylim = c(0.0001, max(pred_table$dT_dt, na.rm = TRUE)))
+ggplot(subset(pred_table, dT_dt > 0.0001 & time < 20*60)) +
+    geom_line(aes(time, dT_dt)) +
+    coord_cartesian(ylim = c(0.0001, max(pred_table$dT_dt, na.rm = TRUE)))
 
 ggplot() +
     geom_hline(yintercept = T_final, color = "red") +
+    geom_point(aes(time, temperature), temperature_work_table) +
     geom_line(
         aes(time, temperature), subset(pred_table, dT_dt > 0.0001 & time < 20*60),
         color = "blue", linetype = "dashed") +
-    geom_point(aes(time, temperature), temperature_work_table) +
     coord_cartesian(ylim = c(0.0001, 40))
 
 
