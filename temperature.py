@@ -22,7 +22,7 @@ GPIO.setwarnings(False)
 
 parser = argparse.ArgumentParser(description='Track temperature relative to a baseline.')
 
-parser.add_argument('--outfile', nargs='?', type=argparse.FileType('w'),
+parser.add_argument('--outfile', nargs='?', type=argparse.FileType('w', bufsize=1),
                     default=sys.stdout,
                     help='''file where the time and temperature should be logged.
                     [Defaults: sys.stdout]''')
