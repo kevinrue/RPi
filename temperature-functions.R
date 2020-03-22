@@ -19,21 +19,6 @@ read_temperature_file <- function(file) {
 #' Title
 #'
 #' @param data
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' temperature_input_table <- read_temperature_file("examples/temperature.txt")
-#'
-#' temperature_input_table %>% add_diff_temperature()
-add_diff_temperature <- function(data) {
-  data %>% mutate(diff = c(0, diff(temperature)))
-}
-
-#' Title
-#'
-#' @param data
 #' @param min_increase
 #'
 #' @return
@@ -46,8 +31,9 @@ add_diff_temperature <- function(data) {
 first_valid_timepoint <- function(data, min_increase = 0.5) {
   # 'data' must contain columns 'temperature' and 'time'
   data %>%
-    add_diff_temperature() %>%
-    mutate(increase = diff > min_increase) %>%
+    mutate(
+      diff = c(0, diff(temperature)),
+      increase = diff > min_increase) %>%
     subset(increase) %>%
     pull(time) %>% head(1)
 }
@@ -56,7 +42,7 @@ first_valid_timepoint <- function(data, min_increase = 0.5) {
 #'
 #' @param data
 #' @param ...
-#' @param reset
+#' @param reset_time
 #'
 #' @return
 #' @export
@@ -65,17 +51,32 @@ first_valid_timepoint <- function(data, min_increase = 0.5) {
 #' temperature_input_table <- read_temperature_file("examples/temperature.txt")
 #'
 #' temperature_input_table %>% drop_pre_measurements()
-drop_pre_measurements <- function(data, ..., reset = TRUE) {
+drop_pre_measurements <- function(data, ..., reset_time = TRUE) {
   time_start <- data %>% first_valid_timepoint(...)
 
   data <- data %>%
     subset(time >= time_start)
 
-  if (reset) {
-    data <- data %>% mutate(time = time - min(time))
+  if (reset_time) {
+    data <- data %>% reset_time()
   }
 
   data
+}
+
+#' Title
+#'
+#' @param data
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' temperature_input_table <- read_temperature_file("examples/temperature.txt")
+#'
+#' temperature_input_table %>% reset_time()
+reset_time <- function(data) {
+  data %>% mutate(time = time - min(time))
 }
 
 #' Title
@@ -92,5 +93,6 @@ drop_pre_measurements <- function(data, ..., reset = TRUE) {
 drop_failed_measurements <- function(data) {
     data %>%
         mutate(dT = c(diff(temperature), NA)) %>%
-        subset(dT != 0)
+        subset(dT != 0) %>%
+        select(-dT)
 }
