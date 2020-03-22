@@ -56,15 +56,19 @@ pred_table <- pred_table %>% mutate(
     temperature = T_0 + cumsum
 )
 
+T_final <- pred_table %>% pull(temperature) %>% tail(1)
+
 # ggplot(subset(pred_table, dT_dt > 0.0001 & time < 20*60)) +
 #     geom_line(aes(time, dT_dt)) +
 #     coord_cartesian(ylim = c(0.0001, max(pred_table$dT_dt, na.rm = TRUE)))
 
 ggplot() +
-    geom_line(aes(time, temperature), subset(pred_table, dT_dt > 0.0001 & time < 20*60)) +
+    geom_hline(yintercept = T_final, color = "red") +
+    geom_line(
+        aes(time, temperature), subset(pred_table, dT_dt > 0.0001 & time < 20*60),
+        color = "blue", linetype = "dashed") +
     geom_point(aes(time, temperature), temperature_work_table) +
     coord_cartesian(ylim = c(0.0001, 40))
 
-T_final <- T_0 + T_add
 
 cat(sprintf("Predicted temperature (Celsius): %.1f", T_final))
